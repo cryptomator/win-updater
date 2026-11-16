@@ -100,7 +100,7 @@ ExitCode Run(int argc, const wchar_t* const* argv) {
     // Phase 2
     DWORD waitResult = WaitForSingleObject(target.Get(), WIN_UPDATER_WAIT_TIMEOUT_MS);
     if (waitResult == WAIT_TIMEOUT) {
-        // Cryptomator is still running, so neither install nor relaunch
+        // the app is still running, so neither install nor relaunch
         log.Info(L"Process %lu did not exit within %lu ms, not updating", options.waitPid, static_cast<DWORD>(WIN_UPDATER_WAIT_TIMEOUT_MS));
         return ExitCode::WaitTimeout;
     }
@@ -128,7 +128,7 @@ ExitCode Run(int argc, const wchar_t* const* argv) {
         log.Info(L"Installer exited with code %lu", installerExitCode);
     }
 
-    // Cryptomator has exited, so bring it back in any case: updated, or the old version after a declined UAC prompt or a failed installation
+    // the app has exited, so bring it back in any case: updated, or the old version after a declined UAC prompt or a failed installation
     log.Info(L"Relaunching %ls", options.relaunch.c_str());
     bool relaunched = Launch(options.relaunch, log);
     return installerRan && relaunched ? ExitCode::Ok : ExitCode::InternalError;

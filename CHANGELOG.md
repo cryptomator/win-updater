@@ -8,4 +8,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- Windows update helper that locks and verifies the downloaded installer (SHA-256 digest and Authenticode signature with signer EKU and root), confirms readiness to Cryptomator, waits for it to exit, runs the MSI or the EXE bundle (elevated from the start) and relaunches Cryptomator
+- Windows updater that locks and verifies the downloaded installer (SHA-256 digest and Authenticode signature with signer EKU and root), confirms readiness to the app, waits for it to exit, runs the MSI or the EXE bundle (elevated from the start) and relaunches the app

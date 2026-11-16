@@ -10,7 +10,7 @@
 namespace {
 
     std::vector<const wchar_t*> ValidArgs() {
-        return {L"updater.exe", L"--wait-pid", L"1234", L"--installer", L"C:\\work\\Cryptomator-1.19.6-x64.msi", L"--sha256", L"00112233445566778899aabbccddeeff00112233445566778899AABBCCDDEEFF", L"--signer-eku", L"1.3.6.1.4.1.311.97.1", L"--root-thumbprint", ROOT, L"--relaunch", L"C:\\Program Files\\Cryptomator\\Cryptomator.exe"};
+        return {L"updater.exe", L"--wait-pid", L"1234", L"--installer", L"C:\\work\\App-1.2.3-x64.msi", L"--sha256", L"00112233445566778899aabbccddeeff00112233445566778899AABBCCDDEEFF", L"--signer-eku", L"1.3.6.1.4.1.311.97.1", L"--root-thumbprint", ROOT, L"--relaunch", L"C:\\Program Files\\App\\App.exe"};
     }
 
     std::optional<Options> Parse(const std::vector<const wchar_t*>& args, std::wstring& error) {
@@ -78,14 +78,14 @@ namespace {
         ExpectRejected(With(L"--signer-eku", L"1..3"), L"--signer-eku must be an OID");
         ExpectRejected(With(L"--signer-eku", L"1.a"), L"--signer-eku must be an OID");
         ExpectRejected(With(L"--root-thumbprint", ZEROS_32), L"--root-thumbprint must be 40 hexadecimal characters");
-        ExpectRejected(With(L"--relaunch", L"C:\\Program Files\\Cryptomator\\Cryptomator.bat"), L"--relaunch must be an absolute path to an .exe");
+        ExpectRejected(With(L"--relaunch", L"C:\\Program Files\\App\\App.bat"), L"--relaunch must be an absolute path to an .exe");
         ExpectRejected(With(L"--log-dir", L"C:\\work\\"), L"--log-dir must be an absolute path without trailing backslash");
     }
 
     void ParentDirectoryKeepsDriveRoot() {
-        CHECK(ParentDirectory(L"C:\\Program Files\\Cryptomator\\Cryptomator.exe") == L"C:\\Program Files\\Cryptomator");
-        CHECK(ParentDirectory(L"C:\\Cryptomator.exe") == L"C:\\");
-        CHECK(ParentDirectory(L"\\\\server\\share\\Cryptomator.exe") == L"\\\\server\\share");
+        CHECK(ParentDirectory(L"C:\\Program Files\\App\\App.exe") == L"C:\\Program Files\\App");
+        CHECK(ParentDirectory(L"C:\\App.exe") == L"C:\\");
+        CHECK(ParentDirectory(L"\\\\server\\share\\App.exe") == L"\\\\server\\share");
     }
 
     void StripExtendedPrefixConvertsDriveAndUncPaths() {
@@ -96,8 +96,8 @@ namespace {
     }
 
     void InstallerCommandLinesMatchTheSpec() {
-        CHECK(BuildMsiCommandLine(L"C:\\Windows\\System32\\msiexec.exe", L"C:\\work\\setup.msi", L"C:\\Program Files\\Cryptomator", L"C:\\work\\installer.log")
-              == L"\"C:\\Windows\\System32\\msiexec.exe\" /i \"C:\\work\\setup.msi\" /passive /norestart INSTALLDIR=\"C:\\Program Files\\Cryptomator\" /l*v \"C:\\work\\installer.log\"");
+        CHECK(BuildMsiCommandLine(L"C:\\Windows\\System32\\msiexec.exe", L"C:\\work\\setup.msi", L"C:\\Program Files\\App", L"C:\\work\\installer.log")
+              == L"\"C:\\Windows\\System32\\msiexec.exe\" /i \"C:\\work\\setup.msi\" /passive /norestart INSTALLDIR=\"C:\\Program Files\\App\" /l*v \"C:\\work\\installer.log\"");
         CHECK(BuildBundleParameters(L"C:\\work\\installer.log") == L"/passive /norestart /log \"C:\\work\\installer.log\"");
     }
 

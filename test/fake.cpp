@@ -1,4 +1,4 @@
-// Test double for the process the updater waits for, the installer and Cryptomator. Copied under the name of its role (e.g. installer.exe), it
+// Test double for the process the updater waits for, the installer and the app. Copied under the name of its role (e.g. installer.exe), it
 // appends its command line to <FAKE_LOG_DIR>\<own file name>.log, sleeps for the milliseconds given with --sleep (default 0) and exits with the
 // code in <FAKE_LOG_DIR>\<own file name>.exitcode (default 0). Without FAKE_LOG_DIR it only sleeps.
 #include <windows.h>
