@@ -1,0 +1,5 @@
+# cmd.exe misreads labels in batch files with LF-only line endings
+*.cmd text eol=crlf
+
+# test fixtures are compared byte by byte
+*.dll binary

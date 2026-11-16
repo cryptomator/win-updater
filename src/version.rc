@@ -1,0 +1,34 @@
+// Version resource. VERSION_MAJOR, VERSION_MINOR and VERSION_PATCH are passed by the Makefile, which also generates branding.h with
+// PRODUCT_NAME, FILE_DESCRIPTION and COMPANY_NAME (configurable through WIN_UPDATER_PRODUCT and WIN_UPDATER_COMPANY, see build.cmd).
+#include <winver.h>
+#include "branding.h"
+
+#define STRINGIZE2(s) #s
+#define STRINGIZE(s) STRINGIZE2(s)
+// e.g. "1.2.3": stringizing keeps the dots without spaces, as there are none between the tokens
+#define VERSION_STRING STRINGIZE(VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH)
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION VERSION_MAJOR,VERSION_MINOR,VERSION_PATCH,0
+PRODUCTVERSION VERSION_MAJOR,VERSION_MINOR,VERSION_PATCH,0
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", COMPANY_NAME
+            VALUE "FileDescription", FILE_DESCRIPTION
+            VALUE "FileVersion", VERSION_STRING
+            VALUE "InternalName", "win-updater"
+            VALUE "LegalCopyright", "Copyright (C) Skymatic GmbH"
+            VALUE "ProductName", PRODUCT_NAME
+            VALUE "ProductVersion", VERSION_STRING
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
