@@ -1,0 +1,37 @@
+name: Build
+on:
+  push:
+    branches: ['**'] # tags are built by release.yml
+  pull_request:
+
+# builds and tests only: no secrets, no signing, no attestation (see release.yml)
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: windows-2022
+    # pull requests from branches of this repo are already built by their push, so only build those from forks
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    env:
+      # branding of the version resource, see build.cmd
+      WIN_UPDATER_PRODUCT: Cryptomator
+      WIN_UPDATER_COMPANY: Skymatic GmbH
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build x64 and test
+        shell: cmd
+        run: .\build.cmd x64 0.0.0 test
+      - name: Build arm64
+        shell: cmd
+        run: .\build.cmd arm64 0.0.0
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: binaries-unsigned
+          path: |
+            target/win-updater-x64.exe
+            target/win-updater-arm64.exe
+          if-no-files-found: error

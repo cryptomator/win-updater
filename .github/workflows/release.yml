@@ -1,0 +1,113 @@
+name: Release
+on:
+  push:
+    tags: ['[0-9]+.[0-9]+.[0-9]+']
+
+# the only workflow with secrets: signing on Azure, see build.yml for regular builds
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Build, Sign and Attest
+    runs-on: windows-2022
+    permissions:
+      contents: read
+      id-token: write # OIDC token for the attestations step
+      attestations: write # Required for the attestations step
+      artifact-metadata: write # Required for the attestations step
+    env:
+      # branding of the version resource, see build.cmd
+      WIN_UPDATER_PRODUCT: Cryptomator
+      WIN_UPDATER_COMPANY: Skymatic GmbH
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check version
+        # the tag filter is a glob; make sure the version ending up on a cmd command line and in the version resource is exactly of the form 1.2.3
+        run: |
+          if [[ ! "$GITHUB_REF_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Tag '$GITHUB_REF_NAME' is not a version of the form 1.2.3"
+            exit 1
+          fi
+      - name: Build x64 and test
+        shell: cmd
+        run: .\build.cmd x64 ${{ github.ref_name }} test
+      - name: Build arm64
+        shell: cmd
+        run: .\build.cmd arm64 ${{ github.ref_name }}
+      - name: Sign EXEs with Azure Trusted Signing
+        uses: azure/artifact-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 # v2.0.0
+        with:
+          files: |
+            ${{ github.workspace }}\target\win-updater-x64.exe
+            ${{ github.workspace }}\target\win-updater-arm64.exe
+          append-signature: false
+          description: Cryptomator Updater
+          description-url: https://github.com/cryptomator/win-updater
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          signing-account-name: cryptomatorSigning
+          certificate-profile-name: production
+          endpoint: https://weu.codesigning.azure.net/
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+          exclude-environment-credential: false
+          exclude-workload-identity-credential: true
+          exclude-managed-identity-credential: true
+          exclude-shared-token-cache-credential: true
+          exclude-visual-studio-credential: true
+          exclude-visual-studio-code-credential: true
+          exclude-azure-cli-credential: true
+          exclude-azure-powershell-credential: true
+          exclude-azure-developer-cli-credential: true
+          exclude-interactive-browser-credential: true
+      - name: Calculate checksums
+        # after signing, as signing changes the files
+        working-directory: target
+        run: sha256sum win-updater-x64.exe win-updater-arm64.exe > SHA256SUMS
+      - name: Attest
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            target/win-updater-x64.exe
+            target/win-updater-arm64.exe
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: binaries
+          path: |
+            target/win-updater-x64.exe
+            target/win-updater-arm64.exe
+            target/SHA256SUMS
+          if-no-files-found: error
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to create the release
+    needs: [build]
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: binaries
+          path: binaries
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          {
+            echo "### Changelog"
+            echo "For a list of all notable changes, read the [changelog](/CHANGELOG.md)."
+            echo
+            echo "### Checksums"
+            echo '```txt'
+            cat binaries/SHA256SUMS
+            echo '```'
+          } > notes.md
+          # with --generate-notes, gh prepends the text given with --notes to the generated notes
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag --prerelease --generate-notes --notes "$(cat notes.md)" \
+            binaries/win-updater-x64.exe binaries/win-updater-arm64.exe binaries/SHA256SUMS
