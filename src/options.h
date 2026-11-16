@@ -8,7 +8,7 @@
 
 enum class InstallerType { Msi, Exe };
 
-// Validated command-line arguments, see "Invocation" in docs/spec.md.
+// Validated command-line arguments, as documented in README.md.
 struct Options {
     DWORD waitPid = 0;
     std::wstring installer;

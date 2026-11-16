@@ -23,7 +23,21 @@ win-updater.exe --wait-pid <pid> --installer <path> --sha256 <hex> --signer-eku 
 - `--relaunch`: the app's executable, started again after the installation.
 - `--log-dir`: directory for `win-updater.log` and the installer's log; defaults to the installer's directory.
 
-After verifying the installer, the updater writes `READY` to stdout. The app exits once it has read that line; if the updater exits without writing it, its exit code tells why. If the app doesn't exit within 60 s, the updater gives up without installing. See [docs/spec.md](docs/spec.md) for the exit codes and the design.
+After verifying the installer, the updater writes `READY` to stdout. The app exits once it has read that line; if the updater exits without writing it, its exit code tells why. If the app doesn't exit within 60 s, the updater gives up without installing.
+
+### Exit codes
+
+Before `READY`, the updater exits with one of the codes 1 to 6, which the app sees. The codes 0, 1, 7 and 8 occur when the app has exited or is gone, so they only show up in `win-updater.log`.
+
+- `0`: the installer ran and the app was relaunched; the installer's own exit code is only logged.
+- `1`: unexpected internal error, e.g. the digest could not be computed. After the app has exited, also if the installer could not be started or the app could not be relaunched; the app is relaunched anyway if possible.
+- `2`: invalid arguments.
+- `3`: the process to wait for does not exist or cannot be opened.
+- `4`: the installer cannot be locked, e.g. because someone else has it open for writing.
+- `5`: the installer's SHA-256 digest doesn't match `--sha256`.
+- `6`: the installer's signature is missing, untrusted or revoked, or comes from the wrong signer (EKU or root).
+- `7`: the app didn't exit within 60 s; neither installation nor relaunch.
+- `8`: `READY` could not be written, as the app is gone; no installation.
 
 ## Building
 

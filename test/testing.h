@@ -28,7 +28,7 @@ struct TestCase {
 // Binaries under test and the directory for test files, set by the runner.
 struct TestEnvironment {
     std::wstring updater;     // release build
-    std::wstring testUpdater; // test build with stub verifier, see `test-strategy` in docs/spec.md
+    std::wstring testUpdater; // test build with stub verifier, `open` instead of `runas` and 3 s timeout
     std::wstring fake;        // test double, see fake.cpp
     std::wstring fixture;     // file signed by the real identity
     std::wstring tempRoot;    // long form, so that paths compare equal to the updater's final paths

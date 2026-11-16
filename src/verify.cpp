@@ -87,7 +87,7 @@ std::wstring FinalPath(HANDLE file, DWORD& error) {
 
 #ifdef WIN_UPDATER_TEST
 
-// Test build only (see `test-strategy` in docs/spec.md): accepts every file, so that phase 2 can be tested with unsigned test doubles.
+// Test build only: accepts every file, so that phase 2 can be tested with unsigned test doubles.
 bool VerifySignature(HANDLE, const std::wstring& path, const std::string&, const std::array<BYTE, 20>&, Log& log) {
     log.Info(L"TEST BUILD: skipping signature verification of %ls", path.c_str());
     return true;

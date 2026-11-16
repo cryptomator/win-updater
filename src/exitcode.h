@@ -1,6 +1,6 @@
 #pragma once
 
-// Exit codes of the updater, see "Exit codes" in docs/spec.md.
+// Exit codes of the updater, as documented in README.md.
 enum class ExitCode : int {
     Ok = 0,
     InternalError = 1,

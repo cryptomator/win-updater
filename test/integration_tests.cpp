@@ -1,5 +1,5 @@
 // Integration tests that run the updater as a process: phase 1 with the release build (real verification), phase 2 with the test build (stub verifier,
-// `open` instead of `runas`, 3 s timeout, see `test-strategy` in docs/spec.md). fake.exe plays the process to wait for, the installer and Cryptomator.
+// `open` instead of `runas`, 3 s timeout). fake.exe plays the process to wait for, the installer and Cryptomator.
 #include "testing.h"
 
 namespace {

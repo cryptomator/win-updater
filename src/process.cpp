@@ -8,7 +8,7 @@
 #include <vector>
 
 #ifdef WIN_UPDATER_TEST
-// Test build only (see `test-strategy` in docs/spec.md): starts test doubles without a UAC prompt.
+// Test build only: starts test doubles without a UAC prompt.
 static const wchar_t* const ELEVATION_VERB = L"open";
 #else
 static const wchar_t* const ELEVATION_VERB = L"runas";

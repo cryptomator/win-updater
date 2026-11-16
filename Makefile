@@ -40,7 +40,7 @@ updater:
 	cl $(CFLAGS) /Fo"$(OBJ_DIR)/" /Fe"$(UPDATER)" $(SOURCES) src\main.cpp "$(OBJ_DIR)\version.res" /link $(LINK_FLAGS) $(LIBS)
 
 # Tests run on the build machine, so only for x64. The test build of the updater replaces the signature verification with a stub, starts the bundle
-# without UAC prompt and waits 3 s instead of 60 s (see `test-strategy` in docs/spec.md).
+# without UAC prompt and waits 3 s instead of 60 s.
 test: updater
 !IF "$(ARCH)" != "x64"
 	@echo Tests are only supported for ARCH=x64 1>&2

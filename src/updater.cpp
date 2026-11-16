@@ -7,7 +7,7 @@
 
 #include <optional>
 
-// How long to wait for Cryptomator to exit (`wait-timeout` in docs/spec.md); shortened in the test build.
+// How long to wait for the app to exit; shortened in the test build.
 #ifndef WIN_UPDATER_WAIT_TIMEOUT_MS
 #define WIN_UPDATER_WAIT_TIMEOUT_MS 60000
 #endif
@@ -60,7 +60,7 @@ ExitCode Run(int argc, const wchar_t* const* argv) {
     log.Open(options.logDir + L"\\win-updater.log");
     log.Info(L"Updating with %ls, waiting for process %lu, relaunching %ls", options.installer.c_str(), options.waitPid, options.relaunch.c_str());
 
-    // the caller waits for the handshake, so the PID still belongs to it and the handle prevents its reuse (`pid-or-inherited-handle`)
+    // the caller waits for the handshake, so the PID still belongs to it and the handle prevents its reuse
     UniqueHandle target(OpenProcess(SYNCHRONIZE, FALSE, options.waitPid));
     if (!target) {
         log.Error(GetLastError(), L"Failed to open process %lu", options.waitPid);

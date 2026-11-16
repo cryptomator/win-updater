@@ -8,10 +8,10 @@
 // The System32 directory from GetSystemDirectoryW, without trailing backslash.
 std::wstring SystemDirectory();
 
-// Command line for msiexec, see phase 2 in docs/spec.md. All paths must be free of double quotes.
+// Command line for msiexec: passive install into the given directory with a verbose log. All paths must be free of double quotes.
 std::wstring BuildMsiCommandLine(const std::wstring& msiexec, const std::wstring& package, const std::wstring& installDir, const std::wstring& logFile);
 
-// Parameters for the EXE bundle, see phase 2 in docs/spec.md.
+// Parameters for the EXE bundle (WiX Burn): passive install with a log.
 std::wstring BuildBundleParameters(const std::wstring& logFile);
 
 /**
