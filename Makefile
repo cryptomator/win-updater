@@ -21,6 +21,7 @@ UPDATER = target\win-updater-$(ARCH).exe
 
 SOURCES = src\log.cpp src\options.cpp src\process.cpp src\updater.cpp src\verify.cpp
 CFLAGS = /nologo /std:c++17 /EHsc /W4 /WX /sdl /guard:cf /MT /O2 /DUNICODE /D_UNICODE
+# Linker flag /ManifestUAC with 'asInvoker' is needed because Windows' installer detection demands elevation for any EXE whose name contains "update"
 LINK_FLAGS = /SUBSYSTEM:WINDOWS /GUARD:CF /DYNAMICBASE /NXCOMPAT /HIGHENTROPYVA /DEPENDENTLOADFLAG:0x800 /MANIFEST:EMBED /MANIFESTUAC:"level='asInvoker' uiAccess='false'"
 !IF "$(ARCH)" == "x64"
 LINK_FLAGS = $(LINK_FLAGS) /CETCOMPAT
