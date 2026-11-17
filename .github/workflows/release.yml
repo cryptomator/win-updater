@@ -3,14 +3,14 @@ on:
   push:
     tags: ['[0-9]+.[0-9]+.[0-9]+']
 
-# the only workflow with secrets: signing on Azure, see build.yml for regular builds
+# publishes unsigned binaries: the app that ships the updater signs it in its own build; see build.yml for regular builds
 defaults:
   run:
     shell: bash
 
 jobs:
   build:
-    name: Build, Sign and Attest
+    name: Build and Attest
     runs-on: windows-2022
     permissions:
       contents: read
@@ -38,35 +38,7 @@ jobs:
       - name: Build arm64
         shell: cmd
         run: .\build.cmd arm64 ${{ github.ref_name }}
-      - name: Sign EXEs with Azure Trusted Signing
-        uses: azure/artifact-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 # v2.0.0
-        with:
-          files: |
-            ${{ github.workspace }}\target\win-updater-x64.exe
-            ${{ github.workspace }}\target\win-updater-arm64.exe
-          append-signature: false
-          description: Cryptomator Updater
-          description-url: https://github.com/cryptomator/win-updater
-          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          signing-account-name: cryptomatorSigning
-          certificate-profile-name: production
-          endpoint: https://weu.codesigning.azure.net/
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
-          exclude-environment-credential: false
-          exclude-workload-identity-credential: true
-          exclude-managed-identity-credential: true
-          exclude-shared-token-cache-credential: true
-          exclude-visual-studio-credential: true
-          exclude-visual-studio-code-credential: true
-          exclude-azure-cli-credential: true
-          exclude-azure-powershell-credential: true
-          exclude-azure-developer-cli-credential: true
-          exclude-interactive-browser-credential: true
       - name: Calculate checksums
-        # after signing, as signing changes the files
         working-directory: target
         run: sha256sum win-updater-x64.exe win-updater-arm64.exe > SHA256SUMS
       - name: Attest

@@ -4,7 +4,7 @@ on:
     branches: ['**'] # tags are built by release.yml
   pull_request:
 
-# builds and tests only: no secrets, no signing, no attestation (see release.yml)
+# builds and tests only: no attestation, no release (see release.yml)
 permissions:
   contents: read
 
